@@ -21,7 +21,7 @@ jobs:
       - name: Clonar repositorio
         uses: actions/checkout@v3
 
-      - name: usar Node.js ${{ matrix.node-version }}
+      - name: Usar Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
@@ -73,11 +73,12 @@ jobs:
           content-filepath: .github/success-message.md
           labels: success, ci
 
-  notifcar-error:
+  notificar-error:
     if: failure()
     runs-on: ubuntu-latest
+    needs: [build]
     steps:
-      - name: Crear un issue por error el fallo en CI
+      - name: Crear issue por fallo en CI
         uses: peter-evans/create-issue-from-file@v4
         with:
           title: "Fallo en CI"
