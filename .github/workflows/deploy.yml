@@ -15,7 +15,7 @@ jobs:
 
   notificar-exito:
     if: success()
-    needs: [build]
+    needs: [deploy]
     runs-on: ubuntu-latest
     steps:
       - name: Enviar notificación a Slack
@@ -34,7 +34,7 @@ jobs:
 
   notificar-error:
     if: failure()
-    needs: [build]
+    needs: [deploy]
     runs-on: ubuntu-latest
     steps:
       - name: Enviar notificación a Slack
