@@ -25,7 +25,7 @@ jobs:
         uses: peter-evans/create-issue-from-file@v4
         with:
           title: "Deploy a Railway completado con éxito"
-          content-filepath: ./.github/success-message.md
+          content-filepath: .github/success-message.md
           labels: success, deploy
 
   notificar-error:
@@ -37,5 +37,5 @@ jobs:
         uses: peter-evans/create-issue-from-file@v4
         with:
           title: "Fallo en el Deploy"
-          content-filepath: ./.github/failure-message.md
+          content-filepath: .github/failure-message.md
           labels: bug, deploy 
