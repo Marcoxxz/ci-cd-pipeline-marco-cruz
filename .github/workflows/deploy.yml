@@ -1,12 +1,9 @@
-name: Deploy a Railway
+name: Deploy a Slack
 
 on:
   push:
     branches:
       - main
-
-permissions:
-  issues: write
 
 jobs:
   deploy:
@@ -34,7 +31,6 @@ jobs:
             • Autor: ${{ github.event.head_commit.author.name }}
             🔗 Ver workflow: ${{ github.server_url }}/${{ github.repository }}/actions
           SLACK_COLOR: good
-
 
   notificar-error:
     if: failure()
