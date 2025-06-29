@@ -63,24 +63,38 @@ jobs:
 
   notificar-exito:
     if: success()
-    runs-on: ubuntu-latest
     needs: [build]
+    runs-on: ubuntu-latest
     steps:
-      - name: Crear issue por CI exitoso
-        uses: peter-evans/create-issue-from-file@v4
-        with:
-          title: "CI completado correctamente"
-          content-filepath: .github/success-message.md
-          labels: success, ci
+      - name: Enviar notificación a Slack
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_USERNAME: "GitHub Actions"
+          SLACK_TITLE: "CI exitoso"
+          SLACK_MESSAGE: |
+            El pipeline de CI se ejecutó correctamente para:
+            • Repo: ${{ github.repository }}
+            • Commit: ${{ github.event.head_commit.message }}
+            • Autor: ${{ github.event.head_commit.author.name }}
+            🔗 Ver workflow: ${{ github.server_url }}/${{ github.repository }}/actions
+          SLACK_COLOR: good
 
   notificar-error:
     if: failure()
-    runs-on: ubuntu-latest
     needs: [build]
+    runs-on: ubuntu-latest
     steps:
-      - name: Crear issue por fallo en CI
-        uses: peter-evans/create-issue-from-file@v4
-        with:
-          title: "Fallo en CI"
-          content-filepath: .github/failure-message.md
-          labels: bug, ci
+      - name: Enviar notificación a Slack
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_USERNAME: "GitHub Actions 🤖"
+          SLACK_TITLE: "Error en CI "
+          SLACK_MESSAGE: |
+            El pipeline de CI se ejecutó correctamente para:
+            • Repo: ${{ github.repository }}
+            • Commit: ${{ github.event.head_commit.message }}
+            • Autor: ${{ github.event.head_commit.author.name }}
+            🔗 Ver workflow: ${{ github.server_url }}/${{ github.repository }}/actions
+          SLACK_COLOR: danger

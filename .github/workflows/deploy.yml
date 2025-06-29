@@ -18,24 +18,39 @@ jobs:
 
   notificar-exito:
     if: success()
+    needs: [build]
     runs-on: ubuntu-latest
-    needs: [deploy]
     steps:
-      - name: Crear issue por deploy exitoso
-        uses: peter-evans/create-issue-from-file@v4
-        with:
-          title: "Deploy a Railway completado con éxito"
-          content-filepath: .github/success-message.md
-          labels: success, deploy
+      - name: Enviar notificación a Slack
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_USERNAME: "GitHub Actions 🤖"
+          SLACK_TITLE: "CI/CD exitoso"
+          SLACK_MESSAGE: |
+            El pipeline de CI/CD se ejecutó correctamente para:
+            • Repo: ${{ github.repository }}
+            • Commit: ${{ github.event.head_commit.message }}
+            • Autor: ${{ github.event.head_commit.author.name }}
+            🔗 Ver workflow: ${{ github.server_url }}/${{ github.repository }}/actions
+          SLACK_COLOR: good
+
 
   notificar-error:
     if: failure()
+    needs: [build]
     runs-on: ubuntu-latest
-    needs: [deploy]
     steps:
-      - name: Crear issue por fallo en deploy
-        uses: peter-evans/create-issue-from-file@v4
-        with:
-          title: "Fallo en el Deploy"
-          content-filepath: .github/failure-message.md
-          labels: bug, deploy 
+      - name: Enviar notificación a Slack
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_USERNAME: "GitHub Actions 🤖"
+          SLACK_TITLE: "Error en CI/CD"
+          SLACK_MESSAGE: |
+            El pipeline de CI/CD se ejecutó correctamente para:
+            • Repo: ${{ github.repository }}
+            • Commit: ${{ github.event.head_commit.message }}
+            • Autor: ${{ github.event.head_commit.author.name }}
+            🔗 Ver workflow: ${{ github.server_url }}/${{ github.repository }}/actions
+          SLACK_COLOR: danger
