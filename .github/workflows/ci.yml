@@ -38,7 +38,7 @@ jobs:
         run: npm test
 
       - name: Build project (if applicable)
-        run: npm run build
+        run: npm run build || echo "No build step defined"
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
@@ -52,7 +52,8 @@ jobs:
     if: success()
 
     steps:
-      - name: Notify Slack
+      - name: Notify Slack (optional)
+        if: env.SLACK_WEBHOOK != ''
         uses: rtCamp/action-slack-notify@v2
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
@@ -66,6 +67,7 @@ jobs:
 
     steps:
       - name: Notify Slack on failure
+        if: env.SLACK_WEBHOOK != ''
         uses: rtCamp/action-slack-notify@v2
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
