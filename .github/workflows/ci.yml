@@ -70,7 +70,7 @@ jobs:
         uses: peter-evans/create-issue-from-file@v4
         with:
           title: "CI completado correctamente"
-          content-filepath: .github/success-message.md
+          content-filepath: ./.github/success-message.md
           labels: success, ci
 
   notificar-error:
@@ -82,5 +82,5 @@ jobs:
         uses: peter-evans/create-issue-from-file@v4
         with:
           title: "Fallo en CI"
-          content-filepath: .github/failure-message.md
+          content-filepath: ./.github/failure-message.md
           labels: bug, ci
