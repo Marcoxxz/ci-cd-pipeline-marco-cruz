@@ -6,24 +6,27 @@ on:
   pull_request:
     branches: [ "main" ]
 
-jobs:
-  build-and-test:
-    runs-on: ubuntu-latest
+permissions:
+  issues: write
 
+jobs:
+  test:
+    name: Pruebas en Node.js
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         node-version: [18.x, 20.x, 22.x]
 
     steps:
-      - name: Checkout code
+      - name: Clonar repositorio
         uses: actions/checkout@v3
 
-      - name: Setup Node.js ${{ matrix.node-version }}
+      - name: usar Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: Cache node modules
+      - name: Cache de dependencias
         uses: actions/cache@v3
         with:
           path: ~/.npm
@@ -31,45 +34,52 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - name: Install dependencies
+      - name: Instalar dependencias
         run: npm install
 
-      - name: Run tests
-        run: npm test
+  build:
+    name: Simular Build
+    runs-on: ubuntu-latest
+    needs: test
 
-      - name: Build project (if applicable)
-        run: npm run build || echo "No build step defined"
+    steps:
+      - name: Clonar repositorio
+        uses: actions/checkout@v3
+      
+      - name: Instalar dependencias
+        run: npm install
 
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+      - name: Simular build
+        run: |
+          mkdir build
+          cp -r src/ build/src/
+          echo "Build generado automáticamente" > build/info.txt
+
+      - name: Guardar artifact
+        uses: actions/upload-artifact@v3
         with:
-          name: build-artifact
-          path: dist/
+          name: app-build
+          path: build/
 
-  notify-success:
-    needs: build-and-test
-    runs-on: ubuntu-latest
+  notificar-exito:
     if: success()
-
-    steps:
-      - name: Notify Slack (optional)
-        if: env.SLACK_WEBHOOK != ''
-        uses: rtCamp/action-slack-notify@v2
-        env:
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-          SLACK_COLOR: good
-          SLACK_TITLE: "Pipeline CI passed successfully"
-
-  notify-failure:
-    needs: build-and-test
     runs-on: ubuntu-latest
-    if: failure()
-
+    needs: [build]
     steps:
-      - name: Notify Slack on failure
-        if: env.SLACK_WEBHOOK != ''
-        uses: rtCamp/action-slack-notify@v2
-        env:
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-          SLACK_COLOR: danger
-          SLACK_TITLE: "Pipeline CI failed"
+      - name: Crear issue por CI exitoso
+        uses: peter-evans/create-issue-from-file@v4
+        with:
+          title: "CI completado correctamente"
+          content-filepath: .github/success-message.md
+          labels: success, ci
+
+  notifcar-error:
+    if: failure()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Crear un issue por error el fallo en CI
+        uses: peter-evans/create-issue-from-file@v4
+        with:
+          title: "Fallo en CI"
+          content-filepath: .github/failure-message.md
+          labels: bug, ci
